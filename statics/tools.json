@@ -1,0 +1,8 @@
+[
+    {
+        "name": "Background Generator",
+        "description": "A background generator for your videos.",
+        "path": "/tools/background-generator.html",
+        "icon": "fas fa-paint-brush"
+    }
+]

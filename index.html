@@ -1,63 +1,251 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="scroll-smooth">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atemukesu 的个人主页</title>
-    <link rel="stylesheet" href="./statics/style.css">
+    <title>Atemukesu | Personal Portfolio</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome Icons (China-friendly CDN) -->
+    <link href="https://cdn.staticfile.org/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#64748b',
+                        dark: '#0f172a',
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .glass {
+                @apply bg-white/70 dark:bg-slate-900/70 backdrop-blur-lg border border-slate-200 dark:border-slate-800;
+            }
+            .text-gradient {
+                @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500;
+            }
+        }
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
 </head>
 
-<body>
+<body class="bg-gray-50 text-slate-800 dark:bg-slate-950 dark:text-slate-200 transition-colors duration-300">
 
-    <div class="container">
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 glass transition-all duration-300" id="navbar">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold tracking-tighter text-gradient">Atemukesu</a>
+            <div class="flex items-center gap-6">
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex gap-8 font-medium text-sm text-slate-600 dark:text-slate-400">
+                    <a href="index.html#about" class="hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+                        data-i18n="nav.about">About</a>
+                    <a href="index.html#projects" class="hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+                        data-i18n="nav.projects">Projects</a>
+                    <a href="tools.html" class="hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+                        data-i18n="nav.tools">Tools</a>
+                </div>
+                <!-- Language Toggle -->
+                <button id="lang-toggle"
+                    class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors font-bold text-sm"
+                    aria-label="Switch Language">
+                    EN
+                </button>
+                <!-- Theme Toggle -->
+                <button id="theme-toggle"
+                    class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+                    aria-label="Toggle Dark Mode">
+                    <i class="fas fa-moon dark:hidden text-slate-600"></i>
+                    <i class="fas fa-sun hidden dark:block text-yellow-400"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
 
-        <!-- 头部 -->
-        <header class="header">
-            <h1>Atemukesu</h1>
-        </header>
+    <!-- Hero Section -->
+    <section class="min-h-screen flex items-center justify-center pt-20 relative overflow-hidden">
+        <!-- Background Blobs -->
+        <div
+            class="absolute top-20 left-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-float dark:bg-purple-900 dark:opacity-20">
+        </div>
+        <div
+            class="absolute bottom-20 right-10 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-float animation-delay-2000 dark:bg-blue-900 dark:opacity-20">
+        </div>
 
-        <main class="main-content">
+        <div class="container mx-auto px-6 relative z-10 text-center">
+            <h2 class="text-sm uppercase tracking-widest text-blue-500 font-semibold mb-4 reveal"
+                data-i18n="hero.greeting">Hello, World</h2>
+            <h1 class="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight leading-tight reveal"
+                style="transition-delay: 100ms;">
+                <span data-i18n="hero.iam">I am</span> <span class="text-gradient">Atemukesu</span>
+            </h1>
+            <p class="text-lg md:text-xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto mb-10 reveal"
+                style="transition-delay: 200ms;" data-i18n="hero.desc">
+                A high school student who loves Anime, GalGame, and Coding. Building digital dreams one line of code at
+                a time.
+            </p>
+            <div class="flex justify-center gap-4 reveal" style="transition-delay: 300ms;">
+                <a href="#projects"
+                    class="px-8 py-3 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-200 rounded-full font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                    data-i18n="hero.viewWork">
+                    View Work
+                </a>
+                <a href="https://github.com/atemukesu" target="_blank"
+                    class="px-8 py-3 glass hover:bg-white dark:hover:bg-slate-800 rounded-full font-semibold transition-all">
+                    GitHub
+                </a>
+            </div>
+            <p id="hitokoto" class="mt-12 text-sm text-slate-500/80 dark:text-slate-400/80 italic font-serif reveal"
+                style="transition-delay: 400ms; min-height: 1.5em;">
+                Loading...
+            </p>
+        </div>
+    </section>
 
-            <!-- 关于我 -->
-            <section class="section about-me">
-                <h2 class="section-title">关于我</h2>
-                <p>私斋。高中生。看动漫。打GalGame。写代码。</p>
-            </section>
-
-            <!-- 项目列表 -->
-            <section class="section projects">
-                <h2 class="section-title">项目</h2>
-                <ul class="project-list">
-
-                    <!-- 项目一 -->
-                    <li class="project-item">
-                        <h3 class="project-title">
-                            <a href="https://atemukesu.github.io/ExtendedNoteBlock" target="_blank">ExtendedNoteBlock</a>
-                        </h3>
-                        <p class="project-description">
-                            这是一个为 Minecraft 设计的模组，在游戏中增加了一个扩展音符盒。它支持128种乐器、全音域和20s内的持续时间控制。
+    <!-- About Section -->
+    <section id="about" class="py-24 bg-white dark:bg-slate-900 border-y border-slate-100 dark:border-slate-800">
+        <div class="container mx-auto px-6 max-w-6xl">
+            <div class="grid md:grid-cols-2 gap-16 items-center">
+                <div class="reveal">
+                    <h2 class="text-3xl font-bold mb-6" data-i18n="about.title">About Me</h2>
+                    <p class="text-slate-600 dark:text-slate-300 mb-6 leading-relaxed" data-i18n="about.text">
+                        I'm a student developer with a passion for creating useful tools and mods.
+                        When I'm not studying or coding, you can find me immersing myself in the world of anime or
+                        visual novels.
+                    </p>
+                    <div class="flex gap-3 flex-wrap">
+                        <span
+                            class="px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-full text-sm font-medium text-slate-600 dark:text-slate-300">Java</span>
+                        <span
+                            class="px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-full text-sm font-medium text-slate-600 dark:text-slate-300">Minecraft
+                            Modding</span>
+                        <span
+                            class="px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-full text-sm font-medium text-slate-600 dark:text-slate-300">Web
+                            Dev</span>
+                        <span
+                            class="px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-full text-sm font-medium text-slate-600 dark:text-slate-300">Fabric
+                            API</span>
+                    </div>
+                </div>
+                <div class="relative reveal" style="transition-delay: 200ms;">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl transform rotate-3 opacity-20 dark:opacity-30">
+                    </div>
+                    <div class="glass p-8 rounded-2xl relative z-10 border border-white/50 dark:border-white/10">
+                        <div class="text-4xl text-blue-500 mb-4"><i class="fas fa-code"></i></div>
+                        <h3 class="text-xl font-bold mb-2" data-i18n="about.philosophyTitle">My Philosophy</h3>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm italic" data-i18n="about.philosophyText">
+                            "Do what you like"
                         </p>
-                        <div class="project-tags">
-                            <span>Java</span>
-                            <span>Fabric</span>
-                            <span>Minecraft</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="py-24 relative">
+        <div class="container mx-auto px-6 max-w-6xl">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-3xl font-bold mb-4" data-i18n="projects.title">Featured Projects</h2>
+                <div class="w-16 h-1 bg-blue-500 mx-auto rounded-full"></div>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-2 gap-8">
+                <!-- Project 1 -->
+                <div
+                    class="group glass rounded-2xl overflow-hidden hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 transform hover:-translate-y-2 reveal">
+                    <div class="p-8">
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400">
+                                <i class="fas fa-music text-xl"></i>
+                            </div>
+                            <a href="https://atemukesu.github.io/ExtendedNoteBlock" target="_blank"
+                                class="text-slate-400 hover:text-blue-500 transition-colors">
+                                <i class="fas fa-external-link-alt"></i>
+                            </a>
                         </div>
-                    </li>
+                        <h3 class="text-2xl font-bold mb-3 group-hover:text-blue-500 transition-colors">
+                            ExtendedNoteBlock</h3>
+                        <p class="text-slate-600 dark:text-slate-400 mb-6 leading-relaxed" data-i18n="projects.p1.desc">
+                            A Minecraft mod that expands the Note Block system with 128 instruments, full pitch range,
+                            and 20s sustain control.
+                        </p>
+                        <div class="flex gap-2 flex-wrap">
+                            <span
+                                class="text-xs font-semibold px-3 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-300 rounded-full">Minecraft</span>
+                            <span
+                                class="text-xs font-semibold px-3 py-1 bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-300 rounded-full">Java</span>
+                            <span
+                                class="text-xs font-semibold px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-full">Fabric</span>
+                        </div>
+                    </div>
+                </div>
 
-                </ul>
-            </section>
+                <!-- Placeholder for future projects -->
+                <!-- You can add more project cards here -->
+            </div>
+        </div>
+    </section>
 
-        </main>
+    <!-- Footer -->
+    <footer
+        class="py-10 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 text-center relative scroll-mt-20">
+        <div class="container mx-auto px-6">
+            <p class="text-slate-500 dark:text-slate-500 text-sm">
+                &copy; 2025 Atemukesu. All rights reserved.
+            </p>
+            <div class="mt-4 flex justify-center gap-6 text-slate-400">
+                <a href="https://github.com/atemukesu" target="_blank" class="hover:text-blue-500 transition-colors"><i
+                        class="fab fa-github"></i></a>
+                <a href="https://space.bilibili.com/482146049" target="_blank"
+                    class="hover:text-pink-400 transition-colors"><i class="fab fa-bilibili"></i></a>
+                <a href="https://afdian.com/a/atommix" target="_blank" class="hover:text-purple-500 transition-colors"
+                    title="Afdian"><i class="fas fa-bolt"></i></a>
+            </div>
+        </div>
+    </footer>
 
-        <!-- 页脚 -->
-        <footer class="footer">
-            <p>&copy; 2025 Atemukesu</p>
-        </footer>
-
-    </div>
+    <script src="./statics/script.js"></script>
 </body>
 
-
 </html>
-

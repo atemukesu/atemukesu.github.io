@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>背景生成实验室</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #050505;
+        }
+
+        canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+
+        input[type="range"]::-webkit-slider-runnable-track {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #3b82f6;
+            margin-top: -6px;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .panel-hidden {
+            transform: translateX(120%);
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body class="font-sans text-white antialiased selection:bg-blue-500 selection:text-white">
+
+    <button id="toggleUI"
+        class="fixed top-6 right-6 z-50 bg-black/50 hover:bg-black/80 backdrop-blur border border-white/10 text-[10px] uppercase tracking-widest px-4 py-2 rounded-full transition-all hover:border-blue-500/50">
+        Hide Controls
+    </button>
+
+    <!-- 控制面板 -->
+    <div id="controls"
+        class="fixed top-6 right-6 w-80 max-h-[calc(100vh-3rem)] overflow-y-auto bg-[#0a0a0a]/90 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl p-5 z-40 transition-all duration-500 ease-[cubic-bezier(0.19,1,0.22,1)]">
+
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h2 class="text-sm font-bold text-white tracking-widest uppercase">Generator <span
+                        class="text-blue-500">V6</span></h2>
+                <p class="text-[10px] text-gray-500 mt-0.5">Geometry & Fluid Engine</p>
+            </div>
+            <div class="h-2 w-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.6)] animate-pulse"></div>
+        </div>
+
+        <!-- 1. 预设主题 -->
+        <div class="mb-6 group">
+            <label
+                class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block group-hover:text-blue-400 transition-colors">Color
+                Theme</label>
+            <div class="relative">
+                <select id="themeSelect"
+                    class="w-full bg-white/5 border border-white/10 rounded-lg text-xs text-gray-300 px-3 py-2.5 outline-none focus:border-blue-500 focus:bg-white/10 transition-all appearance-none cursor-pointer">
+                    <option value="microsoft">Microsoft Blue (微软蓝)</option>
+                    <option value="darkmode">Dark Mode Grid (暗黑网格)</option>
+                    <option value="redstone">Redstone (红石红)</option>
+                    <option value="neon">Neon City (霓虹紫)</option>
+                    <option value="matrix">The Matrix (黑客绿)</option>
+                    <option value="candy">Cotton Candy (棉花糖粉)</option>
+                    <option value="ocean">Deep Ocean (深海蓝)</option>
+                    <option value="forest">Mystic Forest (森林绿)</option>
+                    <option value="retro">Retro Sunset (复古日落)</option>
+                    <option value="bw">Monochrome (黑白极简)</option>
+                </select>
+                <div class="absolute right-3 top-3 pointer-events-none text-gray-500 text-[10px]">▼</div>
+            </div>
+        </div>
+
+        <!-- 2. 渲染模式 -->
+        <div class="mb-6 group">
+            <label
+                class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block group-hover:text-blue-400 transition-colors">Render
+                Mode</label>
+            <div class="relative">
+                <select id="styleSelect"
+                    class="w-full bg-white/5 border border-white/10 rounded-lg text-xs text-gray-300 px-3 py-2.5 outline-none focus:border-blue-500 focus:bg-white/10 transition-all appearance-none cursor-pointer">
+                    <option value="7">🧬 8. 丝绸流体 (Silk Fluid) [NEW]</option>
+                    <option value="6">🌈 7. 动态渐变 (Smart Gradient)</option>
+                    <option value="0">🌊 1. 极光流体 (Clean Aurora)</option>
+                    <option value="1">🌐 2. 数字地形 (Digital Grid)</option>
+                    <option value="2">⚫ 3. 呼吸点阵 (Breathing Dots)</option>
+                    <option value="3">🕸️ 4. 赛博平面 (Cyber Plane)</option>
+                    <option value="4">⬢ 5. 六边形蜂巢 (Hexagon)</option>
+                    <option value="5">🌀 6. 径向隧道 (Radial Tunnel)</option>
+                </select>
+                <div class="absolute right-3 top-3 pointer-events-none text-gray-500 text-[10px]">▼</div>
+            </div>
+        </div>
+
+        <!-- 3. 自定义颜色 (Mini) -->
+        <div class="mb-8 grid grid-cols-4 gap-2">
+            <div
+                class="aspect-square rounded-md overflow-hidden border border-white/10 relative cursor-pointer hover:border-white/50 transition-colors">
+                <input type="color" id="color1" value="#0078D4"
+                    class="absolute inset-0 opacity-0 w-full h-full cursor-pointer">
+                <div id="view-c1" class="w-full h-full" style="background:#0078D4"></div>
+            </div>
+            <div
+                class="aspect-square rounded-md overflow-hidden border border-white/10 relative cursor-pointer hover:border-white/50 transition-colors">
+                <input type="color" id="color2" value="#50E6FF"
+                    class="absolute inset-0 opacity-0 w-full h-full cursor-pointer">
+                <div id="view-c2" class="w-full h-full" style="background:#50E6FF"></div>
+            </div>
+            <div
+                class="aspect-square rounded-md overflow-hidden border border-white/10 relative cursor-pointer hover:border-white/50 transition-colors">
+                <input type="color" id="color3" value="#8764B8"
+                    class="absolute inset-0 opacity-0 w-full h-full cursor-pointer">
+                <div id="view-c3" class="w-full h-full" style="background:#8764B8"></div>
+            </div>
+            <div
+                class="aspect-square rounded-md overflow-hidden border border-white/10 relative cursor-pointer hover:border-white/50 transition-colors">
+                <input type="color" id="color4" value="#050505"
+                    class="absolute inset-0 opacity-0 w-full h-full cursor-pointer">
+                <div id="view-c4" class="w-full h-full" style="background:#050505"></div>
+            </div>
+        </div>
+
+        <!-- 4. 参数滑块 (动态标签) -->
+        <div class="space-y-5 mb-8">
+            <!-- P1: Speed -->
+            <div class="relative">
+                <div class="flex justify-between text-[10px] text-gray-400 mb-2 font-medium uppercase tracking-wider">
+                    <span id="lbl-speed">Time Speed</span>
+                    <span id="val-speed" class="text-white">0.3</span>
+                </div>
+                <input type="range" id="speed" min="0" max="2.0" step="0.05" value="0.3" class="w-full">
+            </div>
+
+            <!-- P2: Scale -->
+            <div class="relative">
+                <div class="flex justify-between text-[10px] text-gray-400 mb-2 font-medium uppercase tracking-wider">
+                    <span id="lbl-scale">Scale / Density</span>
+                    <span id="val-scale" class="text-white">1.0</span>
+                </div>
+                <input type="range" id="scale" min="0.1" max="5.0" step="0.1" value="1.0" class="w-full">
+            </div>
+
+            <!-- P3: Detail (Wave) -->
+            <div class="relative">
+                <div class="flex justify-between text-[10px] text-gray-400 mb-2 font-medium uppercase tracking-wider">
+                    <span id="lbl-turb">Wave / Distortion</span>
+                    <span id="val-turb" class="text-white">0.5</span>
+                </div>
+                <input type="range" id="turb" min="0" max="2.0" step="0.05" value="0.5" class="w-full">
+            </div>
+
+            <!-- P4: Custom 1 (Width/Size) -->
+            <div class="relative">
+                <div class="flex justify-between text-[10px] text-blue-400 mb-2 font-medium uppercase tracking-wider">
+                    <span id="lbl-p1">Shape Size / Thickness</span>
+                    <span id="val-p1" class="text-white">0.5</span>
+                </div>
+                <input type="range" id="p1" min="0" max="1.0" step="0.05" value="0.5" class="w-full">
+            </div>
+
+            <!-- P5: Custom 2 (Glow/Offset) -->
+            <div class="relative">
+                <div class="flex justify-between text-[10px] text-purple-400 mb-2 font-medium uppercase tracking-wider">
+                    <span id="lbl-p2">Glow / Offset</span>
+                    <span id="val-p2" class="text-white">0.2</span>
+                </div>
+                <input type="range" id="p2" min="0" max="1.0" step="0.05" value="0.2" class="w-full">
+            </div>
+
+            <!-- P6: Grain -->
+            <div class="relative opacity-60 hover:opacity-100 transition-opacity">
+                <div class="flex justify-between text-[10px] text-gray-500 mb-2 font-medium uppercase tracking-wider">
+                    <span>Texture Grain</span>
+                    <span id="val-grain" class="text-white">0.08</span>
+                </div>
+                <input type="range" id="grain" min="0" max="0.3" step="0.01" value="0.08" class="w-full">
+            </div>
+        </div>
+
+        <hr class="border-white/10 mb-6">
+
+        <!-- 5. 导出 -->
+        <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-3">Export Video</h3>
+
+        <div class="grid grid-cols-3 gap-2 mb-4">
+            <input type="number" id="resW" value="1920"
+                class="bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs text-white text-center focus:border-blue-500 outline-none"
+                placeholder="W">
+            <input type="number" id="resH" value="1080"
+                class="bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs text-white text-center focus:border-blue-500 outline-none"
+                placeholder="H">
+            <input type="number" id="duration" value="10"
+                class="bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs text-white text-center focus:border-blue-500 outline-none"
+                title="Duration (s)">
+        </div>
+
+        <button id="exportBtn"
+            class="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white text-xs font-bold py-3 px-4 rounded-xl transition-all shadow-lg shadow-blue-900/30 flex items-center justify-center gap-2 tracking-wide">
+            RENDER .WEBM
+        </button>
+        <div id="exportStatus" class="text-center text-[10px] text-gray-500 mt-2 h-4 font-mono"></div>
+    </div>
+
+    <canvas id="glCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('glCanvas');
+        const gl = canvas.getContext('webgl', { preserveDrawingBuffer: true });
+        if (!gl) alert('WebGL Not Supported');
+
+        // --- Shader Source ---
+        const vsSource = `attribute vec4 aVertexPosition; void main() { gl_Position = aVertexPosition; }`;
+
+        const fsSource = `
+            precision mediump float;
+
+            uniform vec2 u_res;
+            uniform float u_time;
+            uniform vec3 u_c1; uniform vec3 u_c2; uniform vec3 u_c3; uniform vec3 u_c4;
+            uniform float u_speed; uniform float u_scale; uniform float u_turb; 
+            uniform float u_p1; // Custom Param 1
+            uniform float u_p2; // Custom Param 2
+            uniform float u_grain;
+            uniform int u_style;
+
+            #define PI 3.14159265359
+
+            // Utils
+            float random(vec2 st) { return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123); }
+            float noise(in vec2 st) {
+                vec2 i = floor(st); vec2 f = fract(st);
+                float a = random(i); float b = random(i + vec2(1.0, 0.0));
+                float c = random(i + vec2(0.0, 1.0)); float d = random(i + vec2(1.0, 1.0));
+                vec2 u = f * f * (3.0 - 2.0 * f);
+                return mix(a, b, u.x) + (c - a)* u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+            }
+            mat2 rotate2d(float _angle){ return mat2(cos(_angle),-sin(_angle),sin(_angle),cos(_angle)); }
+
+            // === 0. Clean Aurora ===
+            vec3 style_aurora(vec2 st, float t) {
+                vec2 p1 = vec2(0.5 + 0.4*sin(t*0.5), 0.5 + 0.4*cos(t*0.3));
+                vec2 p2 = vec2(0.5 + 0.4*sin(t*0.6 + 2.0), 0.5 + 0.3*sin(t*0.4 + 1.0));
+                float d1 = length(st - p1); float d2 = length(st - p2);
+                float w1 = smoothstep(1.2 * u_scale, 0.0, d1);
+                float w2 = smoothstep(1.2 * u_scale, 0.0, d2);
+                float n = noise(st * 3.0 + t * 0.2) * 0.2 * u_turb;
+                vec3 col = u_c4;
+                col = mix(col, u_c1, w1 + n); col = mix(col, u_c2, w2 - n);
+                col += u_c3 * w1 * w2 * u_p2 * 2.0; 
+                return col;
+            }
+
+            // === 1. Digital Grid ===
+            vec3 style_grid(vec2 st, float t) {
+                st.y = pow(st.y, 1.0 + u_p2 * 2.0); 
+                vec2 gridSt = st * (10.0 + u_scale * 10.0);
+                gridSt.x += t * 2.0;
+                gridSt.y += sin(gridSt.x * 0.5 + t) * u_turb;
+                vec2 fpos = fract(gridSt);
+                float width = 0.02 + u_p1 * 0.2;
+                float lines = 1.0 - (step(width, fpos.x) - step(1.0-width, fpos.x)) * (step(width, fpos.y) - step(1.0-width, fpos.y)); 
+                lines *= smoothstep(0.0, 0.5, st.y);
+                vec3 col = mix(u_c4, u_c1, st.y * 0.5);
+                col = mix(col, u_c2, lines);
+                return col;
+            }
+
+            // === 2. Breathing Dots ===
+            vec3 style_dots(vec2 st, float t) {
+                vec2 grid = st * (10.0 + u_scale * 20.0);
+                vec2 ipos = floor(grid);
+                vec2 fpos = fract(grid);
+                if (u_p2 > 0.5 && mod(ipos.y, 2.0) == 0.0) fpos.x = fract(grid.x + 0.5);
+                float n = noise(ipos * 0.1 + t * 0.5);
+                float radius = (0.1 + u_p1 * 0.4) * (1.0 + sin(t + ipos.x + ipos.y)*u_turb);
+                float dot = 1.0 - smoothstep(radius, radius + 0.05, length(fpos - 0.5));
+                vec3 col = u_c4;
+                col = mix(col, mix(u_c1, u_c2, n), dot);
+                return col;
+            }
+
+            // === 3. Cyber Plane ===
+            vec3 style_plane(vec2 st, float t) {
+                vec2 uv = st - 0.5;
+                float fov = 0.5 + u_p2;
+                vec2 p = vec2(uv.x / (abs(uv.y) + fov), 1.0 / (abs(uv.y) + fov));
+                p.y += t * 5.0; p.x *= (1.0 + u_scale);
+                vec2 grid = fract(p) - 0.5;
+                float line = 1.0 - smoothstep(0.0, 0.05 + u_p1 * 0.1, min(abs(grid.x), abs(grid.y)));
+                line *= smoothstep(0.0, 0.5, abs(uv.y));
+                vec3 col = u_c4;
+                if(uv.y > 0.0) col += u_c1 * line * 0.5; else col += u_c2 * line;
+                col += u_c3 * (1.0 - smoothstep(0.0, 0.2, abs(uv.y))) * u_turb;
+                return col;
+            }
+
+            // === 4. Hexagon ===
+            float hexDist(vec2 p) { p = abs(p); float c = dot(p, normalize(vec2(1.0, 1.73))); return max(c, p.x); }
+            vec3 style_hex(vec2 st, float t) {
+                vec2 grid = st * (5.0 + u_scale * 10.0);
+                vec2 r = vec2(1.0, 1.73); vec2 h = r * 0.5;
+                vec2 a = mod(grid, r) - h; vec2 b = mod(grid - h, r) - h;
+                vec2 uv = dot(a, a) < dot(b, b) ? a : b;
+                vec2 id = grid - uv;
+                float n = noise(id * 0.1 + t * 0.2);
+                float size = 0.4 + u_p1 * 0.1 + sin(n*10.0)*u_turb*0.1;
+                float d = hexDist(uv);
+                float border = smoothstep(size, size-0.05, d) - smoothstep(size-0.05, size-0.1, d);
+                float fill = smoothstep(size-0.1, size-0.15, d) * u_p2; 
+                vec3 col = u_c4; col = mix(col, mix(u_c1, u_c2, n), border + fill);
+                return col;
+            }
+
+            // === 5. Radial Tunnel (Fixed) ===
+            vec3 style_radial(vec2 st, float t) {
+                vec2 uv = (gl_FragCoord.xy - u_res.xy*0.5)/min(u_res.x, u_res.y);
+                float r = length(uv); float a = atan(uv.y, uv.x);
+                
+                // FIX: Twist removed. Replaced with Ripple (Concentric Wave).
+                // Previously: a * (turb) caused seam breaks.
+                // Now: sin(a * 10.0) * turb adds a continuous wavy flower pattern.
+                float wave = sin(a * 10.0) * u_turb * 0.1;
+                
+                float spiral = sin(r * (20.0 + u_scale*10.0) - t * 4.0 + wave);
+                float ring = smoothstep(0.4, 0.4 + u_p1, spiral);
+                float hole = smoothstep(0.0, 0.3 + u_p2*0.5, r);
+                vec3 col = mix(u_c4, u_c1, r * 1.5);
+                col += u_c2 * ring * hole; col += u_c3 * (1.0-hole) * 0.5;
+                return col;
+            }
+
+            // === 6. Smart Gradient ===
+            vec3 style_gradient(vec2 st, float t) {
+                vec2 uv = st - 0.5;
+                float angle = u_p1 * PI * 2.0;
+                uv = rotate2d(angle) * uv; uv += 0.5;
+                float n = noise(uv * u_scale + t * 0.1) * u_turb * 0.5;
+                float mixX = clamp(smoothstep(0.0 - n, 1.0 + n, uv.x) + u_p2 * 2.0 - 1.0, 0.0, 1.0);
+                float mixY = clamp(smoothstep(0.0 - n, 1.0 + n, uv.y) + u_p2 * 2.0 - 1.0, 0.0, 1.0);
+                vec3 top = mix(u_c1, u_c2, mixX);
+                vec3 bot = mix(u_c3, u_c4, mixX);
+                vec3 col = mix(top, bot, mixY);
+                return col;
+            }
+
+            // === 7. Silk Fluid (NEW: Soft & Gentle) ===
+            vec3 style_silk(vec2 st, float t) {
+                // Domain Warping for silk-like flow
+                vec2 q = vec2(0.);
+                q.x = noise(st + vec2(t*0.05, t*0.05));
+                q.y = noise(st + vec2(t*0.05, t*0.05));
+
+                vec2 r = vec2(0.);
+                r.x = noise(st + 1.0*q + vec2(1.7,9.2) + 0.15*t*u_speed);
+                r.y = noise(st + 1.0*q + vec2(8.3,2.8) + 0.126*t*u_speed);
+
+                float f = noise(st + r * (1.0 + u_scale));
+
+                // Soft color mixing
+                vec3 col = mix(u_c1, u_c2, clamp(f*f*4.0, 0.0, 1.0));
+                col = mix(col, u_c3, clamp(length(q), 0.0, 1.0));
+                col = mix(col, u_c4, clamp(r.x, 0.0, 1.0));
+                
+                // Add soft highlights
+                col += (f*f*f + 0.6*f*f + 0.5*f) * u_turb * 0.2;
+                
+                return col;
+            }
+
+            void main() {
+                vec2 st = gl_FragCoord.xy / u_res.xy;
+                st.x *= u_res.x / u_res.y; 
+                
+                float time = u_time * u_speed;
+                vec3 color = vec3(0.0);
+
+                if (u_style == 0) color = style_aurora(st, time);
+                else if (u_style == 1) color = style_grid(st, time);
+                else if (u_style == 2) color = style_dots(st, time);
+                else if (u_style == 3) color = style_plane(st, time);
+                else if (u_style == 4) color = style_hex(st, time);
+                else if (u_style == 5) color = style_radial(st, time);
+                else if (u_style == 6) color = style_gradient(st, time);
+                else if (u_style == 7) color = style_silk(st, time);
+
+                // Grain
+                float g = random(st + time) - 0.5;
+                color += g * u_grain;
+
+                gl_FragColor = vec4(color, 1.0);
+            }
+        `;
+
+        // --- WebGL Setup ---
+        function createShader(gl, type, source) {
+            const shader = gl.createShader(type);
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                console.error(gl.getShaderInfoLog(shader));
+                gl.deleteShader(shader);
+                return null;
+            }
+            return shader;
+        }
+
+        const program = gl.createProgram();
+        gl.attachShader(program, createShader(gl, gl.VERTEX_SHADER, vsSource));
+        gl.attachShader(program, createShader(gl, gl.FRAGMENT_SHADER, fsSource));
+        gl.linkProgram(program);
+        gl.useProgram(program);
+
+        const buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+        const aLoc = gl.getAttribLocation(program, 'aVertexPosition');
+        gl.enableVertexAttribArray(aLoc);
+        gl.vertexAttribPointer(aLoc, 2, gl.FLOAT, false, 0, 0);
+
+        const uLocs = {};
+        ['u_res', 'u_time', 'u_c1', 'u_c2', 'u_c3', 'u_c4', 'u_speed', 'u_scale', 'u_turb', 'u_p1', 'u_p2', 'u_grain', 'u_style'].forEach(n => uLocs[n] = gl.getUniformLocation(program, n));
+
+        // --- State & Themes ---
+        const state = {
+            style: 7, c1: [0.8, 0.85, 1], c2: [1, 0.82, 0.86], c3: [0.58, 0.49, 0.68], c4: [0.82, 0.57, 0.74],
+            speed: 0.3, scale: 1.0, turb: 0.5, p1: 0.5, p2: 0.5, grain: 0.08
+        };
+
+        const themes = {
+            microsoft: { c1: "#0078D4", c2: "#50E6FF", c3: "#8764B8", c4: "#050505" },
+            darkmode: { c1: "#333333", c2: "#666666", c3: "#0078D4", c4: "#000000" },
+            redstone: { c1: "#D13438", c2: "#FF4343", c3: "#FFB900", c4: "#1A0505" },
+            neon: { c1: "#B4009E", c2: "#00FFEA", c3: "#7000FF", c4: "#0A0014" },
+            matrix: { c1: "#008F11", c2: "#00FF41", c3: "#0D0208", c4: "#000000" },
+            sunset: { c1: "#FF4D4D", c2: "#FFB800", c3: "#8A2BE2", c4: "#240046" },
+            candy: { c1: "#CCD5FF", c2: "#FFD1DC", c3: "#957DAD", c4: "#D291BC" },
+            ocean: { c1: "#006994", c2: "#009DC4", c3: "#001E36", c4: "#7CAFC2" },
+            forest: { c1: "#2D5A27", c2: "#8FBC8F", c3: "#003300", c4: "#90EE90" },
+            retro: { c1: "#FF4500", c2: "#FF8C00", c3: "#FFD700", c4: "#800000" },
+            bw: { c1: "#FFFFFF", c2: "#AAAAAA", c3: "#555555", c4: "#000000" },
+        };
+
+        const hexToRgb = h => [parseInt(h.substr(1, 2), 16) / 255, parseInt(h.substr(3, 2), 16) / 255, parseInt(h.substr(5, 2), 16) / 255];
+
+        // --- Dynamic Labels ---
+        const labels = [
+            { s: "Time Speed", sc: "Flow Scale", t: "Turbulence", p1: "N/A", p2: "Glow Opacity" }, // Aurora
+            { s: "Scroll Speed", sc: "Grid Density", t: "Wave Distort", p1: "Line Thickness", p2: "Perspective" }, // Grid
+            { s: "Pulse Speed", sc: "Dot Density", t: "Size Variation", p1: "Dot Base Size", p2: "Stagger Row" }, // Dots
+            { s: "Flight Speed", sc: "FOV", t: "Horizon Warp", p1: "Grid Width", p2: "Camera Angle" }, // Plane
+            { s: "Pulse Speed", sc: "Hex Count", t: "Noise Power", p1: "Cell Size", p2: "Fill Opacity" }, // Hex
+            { s: "Rotation", sc: "Tunnel Depth", t: "Ring Ripple", p1: "Ring Width", p2: "Center Hole" }, // Radial
+            { s: "Shift Speed", sc: "Noise Scale", t: "Dither/Blend", p1: "Gradient Angle", p2: "Color Bias" }, // Gradient
+            { s: "Flow Speed", sc: "Pattern Size", t: "Highlights", p1: "N/A", p2: "N/A" } // Silk
+        ];
+
+        function updateLabels() {
+            const l = labels[state.style];
+            document.getElementById('lbl-speed').innerText = l.s;
+            document.getElementById('lbl-scale').innerText = l.sc;
+            document.getElementById('lbl-turb').innerText = l.t;
+            document.getElementById('lbl-p1').innerText = l.p1;
+            document.getElementById('lbl-p2').innerText = l.p2;
+        }
+
+        // --- Event Listeners ---
+        document.getElementById('themeSelect').addEventListener('change', e => {
+            const t = themes[e.target.value];
+            ['color1', 'color2', 'color3', 'color4'].forEach((id, i) => {
+                document.getElementById(id).value = Object.values(t)[i];
+                document.getElementById('view-' + (i === 3 ? 'c4' : 'c' + (i + 1))).style.backgroundColor = Object.values(t)[i];
+                state['c' + (i + 1)] = hexToRgb(Object.values(t)[i]);
+            });
+        });
+
+        document.getElementById('styleSelect').addEventListener('change', e => {
+            state.style = parseInt(e.target.value);
+            updateLabels();
+        });
+
+        ['speed', 'scale', 'turb', 'p1', 'p2', 'grain'].forEach(k => {
+            document.getElementById(k).addEventListener('input', e => {
+                state[k] = parseFloat(e.target.value);
+                document.getElementById('val-' + k).innerText = state[k];
+            });
+        });
+
+        ['color1', 'color2', 'color3', 'color4'].forEach((id, i) => {
+            document.getElementById(id).addEventListener('input', e => {
+                const hex = e.target.value;
+                document.getElementById('view-' + (i === 3 ? 'c4' : 'c' + (i + 1))).style.backgroundColor = hex;
+                state['c' + (i + 1)] = hexToRgb(hex);
+            });
+        });
+
+        document.getElementById('toggleUI').addEventListener('click', () => {
+            const c = document.getElementById('controls');
+            c.classList.toggle('panel-hidden');
+            document.getElementById('toggleUI').innerText = c.classList.contains('panel-hidden') ? 'SHOW CONTROLS' : 'HIDE CONTROLS';
+        });
+
+        // --- Render Loop ---
+        let startTime = performance.now();
+        let isExporting = false;
+
+        function render(now) {
+            if (!isExporting) {
+                const w = canvas.clientWidth, h = canvas.clientHeight;
+                if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; gl.viewport(0, 0, w, h); }
+            }
+
+            gl.uniform2f(uLocs.u_res, canvas.width, canvas.height);
+            gl.uniform1f(uLocs.u_time, (now - startTime) * 0.001);
+            ['c1', 'c2', 'c3', 'c4'].forEach(k => gl.uniform3fv(uLocs['u_' + k], state[k]));
+            ['speed', 'scale', 'turb', 'p1', 'p2', 'grain'].forEach(k => gl.uniform1f(uLocs['u_' + k], state[k]));
+            gl.uniform1i(uLocs.u_style, state.style);
+
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+            if (!isExporting) requestAnimationFrame(render);
+        }
+        requestAnimationFrame(render);
+
+        // --- Export ---
+        const exportBtn = document.getElementById('exportBtn');
+        exportBtn.addEventListener('click', () => {
+            if (isExporting) return;
+            const w = parseInt(document.getElementById('resW').value) || 1920;
+            const h = parseInt(document.getElementById('resH').value) || 1080;
+            const dur = parseInt(document.getElementById('duration').value) || 10;
+
+            isExporting = true;
+            exportBtn.innerText = "RENDERING...";
+            exportBtn.classList.add("opacity-50", "cursor-not-allowed");
+
+            canvas.width = w; canvas.height = h; gl.viewport(0, 0, w, h);
+            const stream = canvas.captureStream(60);
+            const recorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' });
+            const chunks = [];
+
+            recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+            recorder.start();
+
+            const fps = 60;
+            const frames = dur * fps;
+            let frame = 0;
+            const expStart = performance.now();
+
+            function process() {
+                if (frame >= frames) {
+                    recorder.stop();
+                    return;
+                }
+                render(expStart + (frame * (1000 / fps)));
+                frame++;
+                document.getElementById('exportStatus').innerText = `Progress: ${Math.round(frame / frames * 100)}%`;
+                setTimeout(process, 0);
+            }
+
+            recorder.onstop = () => {
+                const blob = new Blob(chunks, { type: 'video/webm' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = `bg_gen_v6_${Date.now()}.webm`;
+                a.click();
+
+                setTimeout(() => {
+                    isExporting = false;
+                    exportBtn.innerText = "RENDER .WEBM";
+                    exportBtn.classList.remove("opacity-50", "cursor-not-allowed");
+                    document.getElementById('exportStatus').innerText = "DONE";
+                    startTime = performance.now();
+                    requestAnimationFrame(render);
+                }, 1000);
+            };
+
+            process();
+        });
+
+        // Init Labels
+        updateLabels();
+    </script>
+</body>
+
+</html>

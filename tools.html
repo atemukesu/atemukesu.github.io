@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tools | Atemukesu</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome Icons (China-friendly CDN) -->
+    <link href="https://cdn.staticfile.org/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#64748b',
+                        dark: '#0f172a',
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .glass {
+                @apply bg-white/70 dark:bg-slate-900/70 backdrop-blur-lg border border-slate-200 dark:border-slate-800;
+            }
+            .text-gradient {
+                @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500;
+            }
+        }
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-slate-800 dark:bg-slate-950 dark:text-slate-200 transition-colors duration-300">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 glass transition-all duration-300" id="navbar">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold tracking-tighter text-gradient">Atemukesu</a>
+            <div class="flex items-center gap-6">
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex gap-8 font-medium text-sm text-slate-600 dark:text-slate-400">
+                    <a href="index.html#about" class="hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+                        data-i18n="nav.about">About</a>
+                    <a href="index.html#projects" class="hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+                        data-i18n="nav.projects">Projects</a>
+                    <a href="tools.html" class="hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+                        data-i18n="nav.tools">Tools</a>
+                </div>
+                <!-- Language Toggle -->
+                <button id="lang-toggle"
+                    class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors font-bold text-sm"
+                    aria-label="Switch Language">
+                    EN
+                </button>
+                <!-- Theme Toggle -->
+                <button id="theme-toggle"
+                    class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+                    aria-label="Toggle Dark Mode">
+                    <i class="fas fa-moon dark:hidden text-slate-600"></i>
+                    <i class="fas fa-sun hidden dark:block text-yellow-400"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Section -->
+    <section class="py-32 relative overflow-hidden text-center">
+        <div class="container mx-auto px-6">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4 reveal"><span class="text-gradient"
+                    data-i18n="tools.title">My Tools</span></h1>
+            <p class="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto mb-10 reveal" data-i18n="tools.desc">
+                Practical little tools I built for myself and others.</p>
+        </div>
+    </section>
+
+    <!-- Tools List Section -->
+    <section class="pb-24">
+        <div class="container mx-auto px-6 max-w-6xl">
+            <div id="tools-container" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Tools will be injected here by JS -->
+                <div class="col-span-full text-center text-slate-500 animate-pulse">Loading tools...</div>
+            </div>
+        </div>
+    </section>
+
+    <footer
+        class="py-10 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 text-center relative">
+        <div class="container mx-auto px-6">
+            <p class="text-slate-500 dark:text-slate-500 text-sm">
+                &copy; 2025 Atemukesu. All rights reserved.
+            </p>
+            <div class="mt-4 flex justify-center gap-6 text-slate-400">
+                <a href="https://github.com/atemukesu" target="_blank" class="hover:text-blue-500 transition-colors"><i
+                        class="fab fa-github"></i></a>
+                <a href="https://space.bilibili.com/482146049" target="_blank"
+                    class="hover:text-pink-400 transition-colors"><i class="fab fa-bilibili"></i></a>
+                <a href="https://afdian.com/a/atommix" target="_blank" class="hover:text-purple-500 transition-colors"
+                    title="Afdian"><i class="fas fa-bolt"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="./statics/script.js"></script>
+</body>
+
+</html>
