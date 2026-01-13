@@ -579,21 +579,28 @@
             recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
             recorder.start();
 
-            const fps = 60;
-            const frames = dur * fps;
-            let frame = 0;
-            const expStart = performance.now();
+            // 使用 requestAnimationFrame 进行实时录制，确保时间和速度正确
+            // Real-time recording loop to match MediaRecorder's wall-clock timing
+            startTime = performance.now(); // 重置全局 startTime 让 shader 从 0 开始
+            const expStart = startTime;
+            const expDurMs = dur * 1000;
 
-            function process() {
-                if (frame >= frames) {
+            function exportLoop() {
+                const now = performance.now();
+                if (now - expStart >= expDurMs) {
                     recorder.stop();
                     return;
                 }
-                render(expStart + (frame * (1000 / fps)));
-                frame++;
-                document.getElementById('exportStatus').innerText = `Progress: ${Math.round(frame / frames * 100)}%`;
-                setTimeout(process, 0);
+
+                render(now);
+
+                const progress = Math.min(100, (now - expStart) / expDurMs * 100);
+                document.getElementById('exportStatus').innerText = `Progress: ${Math.round(progress)}%`;
+
+                requestAnimationFrame(exportLoop);
             }
+
+            exportLoop();
 
             recorder.onstop = () => {
                 const blob = new Blob(chunks, { type: 'video/webm' });
