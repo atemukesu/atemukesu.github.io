@@ -4,5 +4,11 @@
         "description": "A background generator for your videos.",
         "path": "/tools/background-generator.html",
         "icon": "fas fa-paint-brush"
+    },
+    {
+        "name": "MPBIN Visualizer",
+        "description": "A visualizer and compiler for MovableParticles.",
+        "path": "/tools/mptools/index.html",
+        "icon": "fa fa-star"
     }
 ]
