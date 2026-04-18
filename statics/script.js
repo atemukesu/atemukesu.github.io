@@ -52,6 +52,8 @@ const i18nData = {
         'hero.iam': 'I am',
         'hero.desc': 'A high school student. Watch anime, light novels, code. Very sleepy. (っ °Д °;)っ',
         'hero.viewWork': 'View Work',
+        'hero.role': 'Developer · Designer · Creator',
+        'hero.scroll': 'Scroll',
         'about.title': 'About Me',
         'about.text': "I'm a student developer passionate about development. My projects often involve a lot of AI. (●'◡'●)",
         'about.philosophyTitle': 'My Philosophy',
@@ -59,7 +61,12 @@ const i18nData = {
         'projects.title': 'Featured Projects',
         'projects.p1.desc': 'A Minecraft mod that expands the Note Block system with 128 instruments, full pitch range, and 20s sustain control.',
         'tools.title': 'My Tools',
-        'tools.desc': 'Practical little tools I built for myself and others.'
+        'tools.desc': 'Practical little tools I built for myself and others.',
+        'cta.title': 'Interested in working together?',
+        'cta.desc': 'Feel free to reach out for collaborations or just a friendly chat',
+        'cta.button': 'Get in Touch',
+        'cta.support': 'Support Me',
+        'footer.tagline': 'Building digital dreams'
     },
     'zh': {
         'nav.about': '关于我',
@@ -69,14 +76,21 @@ const i18nData = {
         'hero.iam': '我是',
         'hero.desc': '某高中生。看动漫、轻小说、写代码。很困。(っ °Д °;)っ',
         'hero.viewWork': '查看作品',
+        'hero.role': '开发者 · 设计师 · 创作者',
+        'hero.scroll': '滚动',
         'about.title': '关于我',
         'about.text': '我是对开发充满兴趣的学生开发者。我的项目通常使用大量 AI。(●\'◡\'●)',
         'about.philosophyTitle': '我的信条',
-        'about.philosophyText': '“做你喜欢的”',
+        'about.philosophyText': '"做你喜欢的"',
         'projects.title': '精选项目',
         'projects.p1.desc': '一个 Minecraft 模组，将音符盒系统扩展到 128 种乐器、全音域和 20 秒延音控制。',
         'tools.title': '我的工具',
-        'tools.desc': '为自己和他人构建的实用小工具。'
+        'tools.desc': '为自己和他人构建的实用小工具。',
+        'cta.title': '有兴趣一起合作吗？',
+        'cta.desc': '随时联系我进行合作或只是友好的聊天',
+        'cta.button': '联系我',
+        'cta.support': '支持我',
+        'footer.tagline': '构建数字梦想'
     }
 };
 
@@ -110,19 +124,19 @@ if (toolsContainer) {
     fetch('./statics/tools.json')
         .then(response => response.json())
         .then(tools => {
-            toolsContainer.innerHTML = ''; // Clear loading
+            toolsContainer.innerHTML = '';
             tools.forEach(tool => {
                 const toolCard = document.createElement('div');
-                toolCard.className = 'glass p-6 rounded-2xl hover:shadow-lg transition-all transform hover:-translate-y-1 reveal active';
+                toolCard.className = 'tool-card bg-slate-50 dark:bg-slate-900 p-8 card-hover reveal active';
                 toolCard.innerHTML = `
-                    <div class="flex items-center gap-4 mb-4">
-                        <div class="p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400">
-                            <i class="${tool.icon}"></i>
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-12 h-12 bg-blue-500/10 flex items-center justify-center">
+                            <i class="${tool.icon} text-blue-500 text-xl tool-icon"></i>
                         </div>
                         <h3 class="text-xl font-bold">${tool.name}</h3>
                     </div>
-                    <p class="text-slate-600 dark:text-slate-400 mb-4 h-15">${tool.description}</p>
-                    <a href="${tool.path}" class="text-blue-500 hover:text-blue-600 font-medium inline-flex items-center gap-2">
+                    <p class="text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">${tool.description}</p>
+                    <a href="${tool.path}" class="inline-flex items-center gap-2 text-blue-500 hover:text-blue-600 font-semibold">
                         Open Tool <i class="fas fa-arrow-right"></i>
                     </a>
                 `;
